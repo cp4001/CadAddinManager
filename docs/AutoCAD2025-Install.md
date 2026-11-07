@@ -23,7 +23,7 @@
 | 원본 DLL 읽기 | Mono.Cecil 이 파일 핸들 유지 | `InMemory = true` 로 메모리에 읽고 핸들 닫음 |
 | Cecil 객체 해제 | 없음 | `using` 으로 해제 |
 
-수정 위치: `CadAddinManager\Model\AssemLoader.cs` (`ResolveDuplicateMethod`, `GetAssemblyDef`). 2026-11-07 기준 미커밋.
+수정 위치: `CadAddinManager\Model\AssemLoader.cs` (`ResolveDuplicateMethod`, `GetAssemblyDef`). 커밋 `934ba85` (fork `cp4001/CadAddinManager` 브랜치 `jarch-acad2025`).
 
 잠금 원인이 Cecil 파일 핸들이라는 것은 코드와 증상으로 판단한 추정이다.
 
