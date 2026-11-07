@@ -93,7 +93,8 @@ public class AssemLoader
     {
         
         // AssemblyDefinition ass = AssemblyDefinition.ReadAssembly(originalFilePath);
-        AssemblyDefinition ass = GetAssemblyDef(originalFilePath);
+        // using: 파싱 후 Cecil 객체를 확실히 해제 (원본 파일 핸들 미해제로 인한 잠금 방지)
+        using AssemblyDefinition ass = GetAssemblyDef(originalFilePath);
         foreach (ModuleDefinition def in ass.Modules)
         {
             foreach (TypeDefinition d in def.Types)
@@ -144,7 +145,8 @@ public class AssemLoader
         var assemblyLocation = Path.GetDirectoryName(assemblyPath);
         assemblyResolver.AddSearchDirectory(assemblyLocation);
 
-        var readerParameters = new ReaderParameters { AssemblyResolver = assemblyResolver };
+        // InMemory=true: 원본 DLL/PDB를 메모리로 읽고 파일 핸들을 즉시 닫아 bin 잠금 방지
+        var readerParameters = new ReaderParameters { AssemblyResolver = assemblyResolver, InMemory = true };
 
         var pdbName = Path.ChangeExtension(assemblyPath, "pdb");
         if (File.Exists(pdbName))
@@ -460,7 +462,20 @@ public class AssemLoader
         {
             foreach (var assembly2 in AppDomain.CurrentDomain.GetAssemblies())
             {
-               
+#if BRICS
+                // BricsCAD .NET API 어셈블리 (TD_Mgd, BrxMgd)로 참조 여부 판단
+                if (String.Compare(assembly2.GetName().Name.ToLower(), "brxmgd", StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    CadApiAssemblyFullName = assembly2.GetName().Name;
+                    break;
+                }
+
+                if (String.Compare(assembly2.GetName().Name.ToLower(), "td_mgd", StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    CadApiAssemblyFullName = assembly2.GetName().Name;
+                    break;
+                }
+#endif
                 if (String.Compare(assembly2.GetName().Name.ToLower(), "accoremgd", StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     CadApiAssemblyFullName = assembly2.GetName().Name;

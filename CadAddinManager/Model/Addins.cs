@@ -1,6 +1,10 @@
 ﻿using System.IO;
 using System.Reflection;
+#if BRICS
+using Teigha.Runtime;
+#else
 using Autodesk.AutoCAD.Runtime;
+#endif
 using Exception = System.Exception;
 
 namespace CadAddinManager.Model;

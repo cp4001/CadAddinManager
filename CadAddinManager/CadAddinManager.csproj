@@ -8,6 +8,7 @@
     <TargetFramework>net48</TargetFramework>
     <Configurations>Debug A21;Debug A22;Debug A23;Debug A24;Debug A25;Debug A26;Debug A27</Configurations>
     <Configurations>$(Configurations);Release A21;Release A22;Release A23;Release A24;Release A25;Release A26;Release A27</Configurations>
+    <Configurations>$(Configurations);Debug B21;Debug B24;Release B21;Release B24</Configurations>
     <RootNamespace>CadAddinManager</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration.Contains('Debug'))">
@@ -58,6 +59,23 @@
     <TargetFramework>net10.0-windows</TargetFramework>
     <DefineConstants>$(DefineConstants);A27</DefineConstants>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+  <!-- BricsCAD 빌드 구성 (원본 AutoCAD 빌드와 완전 분리). Teigha/Bricscad .NET API 참조. -->
+  <PropertyGroup Condition="$(Configuration.Contains('B21'))">
+    <CADVersion>2021</CADVersion>
+    <CADTrimVersion>21</CADTrimVersion>
+    <IsBrics>true</IsBrics>
+    <BricsVersion>V21</BricsVersion>
+    <BricsDir>C:\Program Files\Bricsys\BricsCAD V21 ko_KR</BricsDir>
+    <DefineConstants>$(DefineConstants);BRICS;B21</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(Configuration.Contains('B24'))">
+    <CADVersion>2024</CADVersion>
+    <CADTrimVersion>24</CADTrimVersion>
+    <IsBrics>true</IsBrics>
+    <BricsVersion>V24</BricsVersion>
+    <BricsDir>C:\Program Files\Bricsys\BricsCAD V24 ko_KR</BricsDir>
+    <DefineConstants>$(DefineConstants);BRICS;B24</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -134,7 +152,8 @@
     </Page>
   </ItemGroup>
 
-  <ItemGroup>
+  <!-- AutoCAD .NET API (원본). BricsCAD 빌드에서는 제외 -->
+  <ItemGroup Condition="'$(IsBrics)' != 'true'">
     <PackageReference Include="Chuongmep.Acad.Api.acmgd" Version="$(CADVersion).*">
       <ExcludeAssets>runtime </ExcludeAssets>
     </PackageReference>
@@ -147,17 +166,40 @@
     <PackageReference Include="Chuongmep.Acad.Api.AdWindows" Version="$(CADVersion).*">
       <ExcludeAssets>runtime </ExcludeAssets>
     </PackageReference>
+  </ItemGroup>
+  <!-- BricsCAD .NET API. 런타임에 BricsCAD가 자기 폴더에서 로드하므로 CopyLocal 안 함 -->
+  <ItemGroup Condition="'$(IsBrics)' == 'true'">
+    <Reference Include="TD_Mgd">
+      <HintPath>$(BricsDir)\TD_Mgd.dll</HintPath>
+      <Private>false</Private>
+      <SpecificVersion>false</SpecificVersion>
+    </Reference>
+    <Reference Include="BrxMgd">
+      <HintPath>$(BricsDir)\BrxMgd.dll</HintPath>
+      <Private>false</Private>
+      <SpecificVersion>false</SpecificVersion>
+    </Reference>
+  </ItemGroup>
+  <!-- 리본 UI는 BricsCAD에 동등 API가 없으므로 BricsCAD 빌드에서 제외 (명령어만 지원) -->
+  <ItemGroup Condition="'$(IsBrics)' == 'true'">
+    <Compile Remove="App.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Mono.Cecil" Version="0.11.4"/>
   </ItemGroup>
-  <PropertyGroup>
+  <PropertyGroup Condition="'$(IsBrics)' != 'true'">
     <StartAction>Program</StartAction>
     <StartProgram>C:\Program Files\Autodesk\AutoCAD $(CADVersion)\acad.exe</StartProgram>
     <StartArguments>/language ENG</StartArguments>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(IsBrics)' == 'true'">
+    <StartAction>Program</StartAction>
+    <StartProgram>$(BricsDir)\bricscad.exe</StartProgram>
+  </PropertyGroup>
 <!--  <PropertyGroup>-->
 <!--    <PostBuildEvent>powershell -NoProfile -ExecutionPolicy Unrestricted $(SolutionDir)CadAddinManager\postbuild.ps1 -Configuration '$(Configuration)' -SolutionDir '$(SolutionDir)' -ProjectDir '$(ProjectDir)'</PostBuildEvent>-->
 <!--  </PropertyGroup>-->
-  <Target Name="CopyFiles" AfterTargets="CoreBuild" Condition="$(Configuration.Contains('Debug'))" >
+  <Target Name="CopyFiles" AfterTargets="CoreBuild" Condition="$(Configuration.Contains('Debug')) And '$(IsBrics)' != 'true'" >
     <ItemGroup>
       <XmlItem Include="$(ProjectDir)*.xml" />
       <AddinItem Include="$(TargetDir)*.*" />

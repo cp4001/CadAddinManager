@@ -1,6 +1,11 @@
 ﻿using System.Diagnostics;
+#if BRICS
+using Bricscad.ApplicationServices.Core;
+using Teigha.Runtime;
+#else
 using Autodesk.AutoCAD.ApplicationServices.Core;
 using Autodesk.AutoCAD.Runtime;
+#endif
 using CadAddinManager.Model;
 using Exception = System.Exception;
 
@@ -23,7 +28,7 @@ public class AddInManagerManual : ICadCommand
 
 public class AddInManagerFaceLess  : ICadCommand
 {
-    [Autodesk.AutoCAD.Runtime.CommandMethod("AddInManagerFaceLess",CommandFlags.Session)]
+    [CommandMethod("AddInManagerFaceLess",CommandFlags.Session)]
     public override void Execute()
     {
         try

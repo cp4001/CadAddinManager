@@ -1,12 +1,21 @@
 ﻿using System.IO;
 using System.Reflection;
 using System.Windows;
+#if BRICS
+using Bricscad.ApplicationServices;
+using Teigha.Runtime;
+#else
 using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.Runtime;
+#endif
 using CadAddinManager.Model;
 using CadAddinManager.View;
 using CadAddinManager.ViewModel;
+#if BRICS
+using Application = Bricscad.ApplicationServices.Application;
+#else
 using Application = Autodesk.AutoCAD.ApplicationServices.Core.Application;
+#endif
 using Exception = System.Exception;
 using MessageBox = System.Windows.MessageBox;
 

@@ -3,7 +3,11 @@ using System.IO;
 using System.Reflection;
 using System.Windows;
 using CadAddinManager.Model;
+#if BRICS
+using Application = Bricscad.ApplicationServices.Application;
+#else
 using Application = Autodesk.AutoCAD.ApplicationServices.Core.Application;
+#endif
 using MessageBox = System.Windows.MessageBox;
 
 namespace CadAddinManager.ViewModel;

@@ -9,7 +9,11 @@ using CadAddinManager.Model;
 using CadAddinManager.View;
 using CadAddinManager.View.Control;
 using Microsoft.Win32;
+#if BRICS
+using Application = Bricscad.ApplicationServices.Application;
+#else
 using Application = Autodesk.AutoCAD.ApplicationServices.Core.Application;
+#endif
 using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
